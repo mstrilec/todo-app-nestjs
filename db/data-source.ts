@@ -12,6 +12,7 @@ export const createDataSourceOptions = async (
     password: configService.get('DB_PASSWORD'),
     database: configService.get('DB_NAME'),
     entities: [__dirname + '/**/*.entity{.ts,.js}'],
+    migrations: ['dist/db/migrations/*.{js,ts}'],
     synchronize: false,
   };
 };
