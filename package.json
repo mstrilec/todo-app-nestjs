@@ -1,7 +1,6 @@
 {
   "name": "todo-app-nestjs",
   "version": "0.0.1",
-  "type": "module",
   "description": "",
   "author": "",
   "private": true,
@@ -18,7 +17,11 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "typeorm": "npm run build && npx typeorm -d dist/db/data-source.js",
+    "migration:generate": "npm run typeorm -- migration:generate",
+    "migration:run": "npm run typeorm -- migration:run",
+    "migration:revert": "npm run typeorm -- migration:revert"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -28,7 +31,7 @@
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/typeorm": "^10.0.0",
     "dotenv": "^16.3.1",
-    "joi": "^17.10.2",
+    "joi": "^17.11.0",
     "mysql2": "^3.6.1",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
