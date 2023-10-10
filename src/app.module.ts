@@ -7,6 +7,7 @@ import { validationSchema } from './validation/validation.schema';
 import { UserModule } from './user/user.module';
 import { TodoModule } from './todo/todo.module';
 import { dataSourceOptions } from 'db/data-source';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { dataSourceOptions } from 'db/data-source';
     TypeOrmModule.forRoot(dataSourceOptions),
     TodoModule,
     UserModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
