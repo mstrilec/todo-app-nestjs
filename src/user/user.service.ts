@@ -1,26 +1,68 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
-
-export type UserType = any;
+import { Repository } from 'typeorm';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UserService {
-  private readonly users = [
-    {
-      id: 1,
-      username: 'john',
-      password: 'changeme',
-      todos: [],
-    },
-    {
-      id: 2,
-      username: 'maria',
-      password: 'guess',
-      todos: [],
-    },
-  ];
+  constructor(
+    @InjectRepository(User)
+    private users: Repository<User>,
+  ) {}
 
-  async findOne(username: string): Promise<User | undefined> {
-    return this.users.find((user) => user.username === username);
+  async create(createUserDto: CreateUserDto) {
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+
+    const user = this.users.create({
+      ...createUserDto,
+      password: hashedPassword,
+    });
+
+    return this.users.save(user);
+  }
+
+  findAll() {
+    return `This action returns all user`;
+  }
+
+  async findOne(id: number) {
+    const user = await this.users.findOne({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User with this id does not exist');
+    }
+
+    return user;
+  }
+
+  async findUserByEmail(email: string) {
+    const user = await this.users.findOne({
+      where: {
+        email: email,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException(
+        'User with the provided email does not exist',
+      );
+    }
+
+    return user;
+  }
+
+  update(id: number, updateUserDto: UpdateUserDto) {
+    return `This action updates a #${id} user`;
+  }
+
+  remove(id: number) {
+    return `This action removes a #${id} user`;
   }
 }
