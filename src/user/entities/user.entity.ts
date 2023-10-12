@@ -7,11 +7,14 @@ export class User {
   id: number;
 
   @Column({ unique: true })
+  email: string;
+
+  @Column({ unique: true })
   username: string;
 
   @Column()
   password: string;
 
   @OneToMany(() => Todo, (todo) => todo.user)
-  todos: Todo[];
+  todos: Todo[] | [];
 }
