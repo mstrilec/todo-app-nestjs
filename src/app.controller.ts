@@ -1,24 +1,22 @@
 import {
   Controller,
-  Request,
   Post,
   UseGuards,
   HttpCode,
   HttpStatus,
   Body,
+  Request,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { AppService } from './app.service';
 import { AuthService } from './auth/auth.service';
-import { UserService } from './user/user.service';
-import { CreateUserDto } from './user/dto/create-user.dto';
+import { UsersService } from './users/users.service';
+import { CreateUserDto } from './users/dto/create-user.dto';
 
 @Controller('auth')
 export class AppController {
   constructor(
-    private readonly appService: AppService,
     private readonly authService: AuthService,
-    private users: UserService,
+    private users: UsersService,
   ) {}
 
   @UseGuards(AuthGuard('local'))
