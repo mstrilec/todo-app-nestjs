@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { validationSchema } from './validation/validation.schema';
-import { UserModule } from './user/user.module';
+import { UsersModule } from './users/users.module';
 import { TodoModule } from './todo/todo.module';
 import { dataSourceOptions } from 'db/data-source';
 import { AuthModule } from './auth/auth.module';
@@ -16,7 +16,7 @@ import { AuthModule } from './auth/auth.module';
     }),
     TypeOrmModule.forRoot(dataSourceOptions),
     TodoModule,
-    UserModule,
+    UsersModule,
     AuthModule,
   ],
   controllers: [AppController],
