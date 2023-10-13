@@ -7,7 +7,7 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()
-export class UserService {
+export class UsersService {
   constructor(
     @InjectRepository(User)
     private users: Repository<User>,
@@ -43,6 +43,8 @@ export class UserService {
   }
 
   async findUserByEmail(email: string) {
+    console.log(this.users);
+
     const user = await this.users.findOne({
       where: {
         email: email,
@@ -52,6 +54,22 @@ export class UserService {
     if (!user) {
       throw new NotFoundException(
         'User with the provided email does not exist',
+      );
+    }
+
+    return user;
+  }
+
+  async findUserByUsername(username: string) {
+    const user = await this.users.findOne({
+      where: {
+        username: username,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException(
+        'User with the provided username does not exist',
       );
     }
 
