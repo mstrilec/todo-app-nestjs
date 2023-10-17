@@ -18,6 +18,9 @@ export class Todo {
   @Column({ type: 'timestamp', nullable: false })
   deadline: Date;
 
+  @Column()
+  userId: number;
+
   @ManyToOne(() => User, (user) => user.todos, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
