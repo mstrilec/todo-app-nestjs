@@ -6,6 +6,7 @@ import {
   HttpStatus,
   Body,
   Request,
+  Session,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth/auth.service';
@@ -22,8 +23,11 @@ export class AppController {
   @UseGuards(AuthGuard('local'))
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login(@Request() req) {
-    return this.authService.login(req.user);
+  async login(
+    @Body() createUserDto: CreateUserDto,
+    @Session() session: Record<string, any>,
+  ) {
+    return this.authService.login(createUserDto, session);
   }
 
   @Post('register')
