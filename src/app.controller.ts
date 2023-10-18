@@ -34,9 +34,10 @@ export class AppController {
   async register(@Body() createUserDto: CreateUserDto) {
     try {
       const user = await this.users.create(createUserDto);
+
       return user;
     } catch (error) {
-      return { error: 'Registration failed' };
+      return { error: 'Registration failed', msg: error };
     }
   }
 }

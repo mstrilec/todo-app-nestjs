@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { TodoModule } from './todo/todo.module';
 import { dataSourceOptions } from 'db/data-source';
 import { AuthModule } from './auth/auth.module';
+import { ConfirmationController } from './confirmation/confirmation.controller';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { AuthModule } from './auth/auth.module';
     UsersModule,
     AuthModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, ConfirmationController],
   providers: [AppService],
 })
 export class AppModule {}

@@ -15,6 +15,12 @@ export class User {
   @Column()
   password: string;
 
+  @Column({ default: false })
+  isEmailConfirmed: boolean;
+
+  @Column({ unique: true })
+  emailConfirmationToken: string;
+
   @OneToMany(() => Todo, (todo) => todo.user)
   todos: Todo[] | [];
 }

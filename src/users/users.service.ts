@@ -5,6 +5,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
+import * as sgMail from '@sendgrid/mail';
+import * as crypto from 'crypto';
+import sendgridConfig from 'configurations/sendgrid.config';
 
 @Injectable()
 export class UsersService {
@@ -21,7 +24,62 @@ export class UsersService {
       password: hashedPassword,
     });
 
-    return this.users.save(user);
+    const confirmationToken = await this.generateUniqueToken();
+
+    const confirmationLink = `http://localhost:3000/confirmation?token=${confirmationToken}`;
+
+    user.emailConfirmationToken = confirmationToken;
+
+    await this.users.save(user);
+
+    await this.sendConfirmationEmail(user.email, confirmationLink);
+
+    return user;
+  }
+
+  async sendConfirmationEmail(to: string, confirmationLink: string) {
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+    const msg = {
+      to,
+      from: sendgridConfig.fromEmail,
+      subject: 'Confirm Your Email',
+      text: 'Please confirm your email by clicking the link below:',
+      html: `<a href="${confirmationLink}">Confirm Your Email</a>`,
+    };
+
+    sgMail
+      .send(msg)
+      .then(() => {
+        console.log('Email sent');
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  async generateUniqueToken() {
+    const buffer = crypto.randomBytes(32);
+
+    const token = buffer.toString('hex');
+
+    return token;
+  }
+
+  async confirmEmail(token: string) {
+    const user = await this.users.findOne({
+      where: { emailConfirmationToken: token },
+    });
+
+    if (user) {
+      user.isEmailConfirmed = true;
+
+      await this.users.save(user);
+
+      return user;
+    } else {
+      return null;
+    }
   }
 
   findAll() {
