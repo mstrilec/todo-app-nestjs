@@ -15,6 +15,9 @@ export class User {
   @Column()
   password: string;
 
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  deadline: Date;
+
   @OneToMany(() => Todo, (todo) => todo.user)
   todos: Todo[] | [];
 }
