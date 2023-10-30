@@ -28,4 +28,8 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   emailConfirmationToken: string;
+
+  @IsOptional()
+  @IsString()
+  resetToken: string;
 }

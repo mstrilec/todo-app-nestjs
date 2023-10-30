@@ -21,6 +21,9 @@ export class User {
   @Column({ unique: true })
   emailConfirmationToken: string;
 
+  @Column({ nullable: true })
+  resetToken: string;
+
   @OneToMany(() => Todo, (todo) => todo.user)
   todos: Todo[] | [];
 }

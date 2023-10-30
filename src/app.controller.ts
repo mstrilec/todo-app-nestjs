@@ -7,6 +7,8 @@ import {
   Body,
   Request,
   Session,
+  Get,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth/auth.service';
@@ -27,7 +29,22 @@ export class AppController {
     @Body() createUserDto: CreateUserDto,
     @Session() session: Record<string, any>,
   ) {
-    return this.authService.login(createUserDto, session);
+    const user = await this.users.findUserByEmail(createUserDto.email);
+
+    if (!user) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    if (!user.isEmailConfirmed) {
+      console.error('User is not confirmed');
+      return { error: 'User is not confirmed.' };
+    }
+
+    session.user = user;
+
+    const token = this.authService.generateToken(user);
+
+    return { token, user };
   }
 
   @Post('register')
@@ -38,6 +55,57 @@ export class AppController {
       return user;
     } catch (error) {
       return { error: 'Registration failed', msg: error };
+    }
+  }
+
+  @Get('profile')
+  getProfile(@Request() req) {
+    const user = req.session.user;
+
+    if (user) {
+      if (user.isEmailConfirmed) {
+        return `Welcome, ${user.username}!`;
+      } else {
+        return 'Your email is not confirmed yet.';
+      }
+    } else {
+      return 'You are not logged in.';
+    }
+  }
+
+  @Post('reset-password')
+  async resetPassword(@Session() session: Record<string, any>) {
+    const user = session.user;
+
+    if (user && user.isEmailConfirmed) {
+      await this.users.initiatePasswordReset(user.email);
+
+      return { message: 'Password reset email sent.' };
+    }
+
+    return {
+      error:
+        'Password reset email could not be sent. Please check your email or account status.',
+    };
+  }
+
+  @Post('reset-password/:token')
+  async resetPasswordLink(
+    @Body('newPassword') newPassword: string,
+    @Session() session: Record<string, any>,
+  ) {
+    if (session.user) {
+      const userEmail = session.user.email;
+
+      if (this.users.isValidPassword(newPassword)) {
+        await this.users.updatePassword(userEmail, newPassword);
+
+        return { message: 'Password reset successful' };
+      } else {
+        return { error: 'Invalid password format' };
+      }
+    } else {
+      return { error: 'User not found in session' };
     }
   }
 }

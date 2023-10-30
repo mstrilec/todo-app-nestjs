@@ -42,7 +42,7 @@ export class AuthService {
     return { token, user };
   }
 
-  private generateToken(user: User) {
+  generateToken(user: User) {
     const payload = {
       username: user.username,
       sub: user.id,
