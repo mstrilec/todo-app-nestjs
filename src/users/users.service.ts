@@ -82,6 +82,67 @@ export class UsersService {
     }
   }
 
+  async initiatePasswordReset(email: string) {
+    const user = await this.findUserByEmail(email);
+
+    if (user && user.isEmailConfirmed) {
+      const resetToken = await this.generateUniqueToken();
+      await this.saveResetToken(user.email, resetToken);
+
+      const resetLink = `http://localhost:3000/auth/reset-password/${resetToken}`;
+
+      const msg = {
+        to: user.email,
+        from: sendgridConfig.fromEmail,
+        subject: 'Reset password',
+        text: 'To reset your password, please, enter the link:',
+        html: `<a href="${resetLink}">Reset Password</a>`,
+      };
+
+      return sgMail
+        .send(msg)
+        .then(() => {
+          console.log('Password reset email sent');
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    } else {
+      throw new NotFoundException('Invalid email or user is not confirmed.');
+    }
+  }
+
+  async saveResetToken(email: string, resetToken: string) {
+    const user = await this.findUserByEmail(email);
+
+    if (!user) {
+      throw new Error('Cannot find user');
+    }
+
+    user.resetToken = resetToken;
+
+    await this.users.save(user);
+  }
+
+  async updatePassword(email: string, newPassword: string) {
+    const user = await this.findUserByEmail(email);
+
+    if (!user) {
+      throw new Error('Cannot find user');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    user.password = hashedPassword;
+    await this.users.save(user);
+
+    return 'Password changed';
+  }
+
+  isValidPassword(password: string): boolean {
+    return password.length >= 8;
+  }
+
   findAll() {
     return `This action returns all user`;
   }
@@ -101,8 +162,6 @@ export class UsersService {
   }
 
   async findUserByEmail(email: string) {
-    console.log(this.users);
-
     const user = await this.users.findOne({
       where: {
         email: email,
