@@ -12,6 +12,9 @@ export class Todo {
   @Column({ default: false })
   isCompleted: boolean;
 
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  deadline: Date;
+
   @ManyToOne(() => User, (user) => user.todos, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
