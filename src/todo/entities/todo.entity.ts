@@ -12,7 +12,7 @@ export class Todo {
   @Column({ default: false })
   isCompleted: boolean;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({ type: 'timestamp', nullable: false })
   deadline: Date;
 
   @ManyToOne(() => User, (user) => user.todos, {
