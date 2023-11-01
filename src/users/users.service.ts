@@ -58,6 +58,21 @@ export class UsersService {
       });
   }
 
+  async sendReminderEmail(to: string, subject: string, text: string) {
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+    const msg = {
+      to,
+      from: sendgridConfig.fromEmail,
+      subject,
+      text,
+    };
+
+    sgMail.send(msg).catch((error) => {
+      console.error(error);
+    });
+  }
+
   async generateUniqueToken() {
     const buffer = crypto.randomBytes(32);
 

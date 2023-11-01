@@ -4,12 +4,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Todo } from './entities/todo.entity';
 import { Repository } from 'typeorm';
 import { User } from 'src/users/entities/user.entity';
+import * as schedule from 'node-schedule';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class TodoService {
   constructor(
     @InjectRepository(Todo)
     private readonly todos: Repository<Todo>,
+    private readonly usersService: UsersService,
   ) {}
 
   async create(createTodoDto: CreateTodoDto, currentUser: User) {
@@ -54,5 +57,33 @@ export class TodoService {
     if (todo) {
       await this.todos.remove(todo);
     }
+  }
+
+  async scheduleDeadlineReminders() {
+    const todos = await this.todos.find({
+      where: {
+        reminder: true,
+      },
+    });
+    const now = new Date();
+
+    todos.forEach((todo) => {
+      const deadline = new Date(todo.deadline);
+      const oneHourBeforeDeadline = new Date(
+        deadline.getTime() - 60 * 60 * 1000,
+      );
+
+      if (oneHourBeforeDeadline > now) {
+        schedule.scheduleJob(oneHourBeforeDeadline, async () => {
+          const userId = todo.userId;
+          const subject = 'Нагадування про дедлайн';
+          const message = `Дедлайн для завдання "${todo.title}" закінчується через годину.`;
+
+          const user = await this.usersService.findOne(userId);
+
+          this.usersService.sendReminderEmail(user.email, subject, message);
+        });
+      }
+    });
   }
 }
