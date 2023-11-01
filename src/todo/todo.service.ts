@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Todo } from './entities/todo.entity';
 
 @Injectable()
 export class TodoService {
+  constructor(@InjectRepository(Todo) private usersRepository) {}
   create(createTodoDto: CreateTodoDto) {
     return 'This action adds a new todo';
   }
