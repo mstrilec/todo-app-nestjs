@@ -29,14 +29,15 @@ export class AppController {
     @Body() createUserDto: CreateUserDto,
     @Session() session: Record<string, any>,
   ) {
-    const user = await this.users.findUserByEmail(createUserDto.email);
+    const user = await this.users.findUserByUsername(createUserDto.username);
 
     if (!user) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException('Invalid username or password');
     }
 
     if (!user.isEmailConfirmed) {
       console.error('User is not confirmed');
+
       return { error: 'User is not confirmed.' };
     }
 
@@ -56,6 +57,14 @@ export class AppController {
     } catch (error) {
       return { error: 'Registration failed', msg: error };
     }
+  }
+
+  @Post('logout')
+  async logout(@Session() session: Record<string, any>, @Request() req) {
+    req.session.destroy();
+    req.res.clearCookie('connect.sid');
+
+    return { message: 'Logged out successfully' };
   }
 
   @Get('profile')

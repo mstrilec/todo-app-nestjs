@@ -24,6 +24,12 @@ export class User {
   @Column({ nullable: true })
   resetToken: string;
 
+  @Column({ default: 'user' })
+  role: string;
+
+  @Column({ default: false })
+  isBlocked: boolean;
+
   @OneToMany(() => Todo, (todo) => todo.user)
   todos: Todo[] | [];
 }
