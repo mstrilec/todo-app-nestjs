@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class CreateTodoAndUserTables1699272529097 implements MigrationInterface {
     name = 'CreateTodoAndUserTables1699272529097'
@@ -18,4 +18,14 @@ export class CreateTodoAndUserTables1699272529097 implements MigrationInterface 
         await queryRunner.query(`DROP TABLE \`user\``);
     }
 
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `ALTER TABLE \`todo\` DROP FOREIGN KEY \`FK_1e982e43f63a98ad9918a86035c\``,
+    );
+    await queryRunner.query(`DROP TABLE \`todo\``);
+    await queryRunner.query(
+      `DROP INDEX \`IDX_78a916df40e02a9deb1c4b75ed\` ON \`user\``,
+    );
+    await queryRunner.query(`DROP TABLE \`user\``);
+  }
 }
