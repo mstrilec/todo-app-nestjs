@@ -32,4 +32,12 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   resetToken: string;
+
+  @IsOptional()
+  @IsString()
+  role: string = 'user';
+
+  @IsOptional()
+  @IsBoolean()
+  isBlocked: boolean = false;
 }

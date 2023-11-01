@@ -143,8 +143,59 @@ export class UsersService {
     return password.length >= 8;
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async blockUser(id: number) {
+    const user = await this.findOne(id);
+
+    if (user) {
+      user.isBlocked = true;
+      return this.users.save(user);
+    }
+
+    return null;
+  }
+
+  async unblockUser(id: number) {
+    const user = await this.findOne(id);
+
+    if (user) {
+      user.isBlocked = false;
+      return this.users.save(user);
+    }
+
+    return null;
+  }
+
+  async editUser(id: number, updateUserDto: UpdateUserDto) {
+    const user = await this.findOne(id);
+
+    if (user) {
+      if (updateUserDto.email) {
+        user.email = updateUserDto.email;
+      }
+      if (updateUserDto.username) {
+        user.username = updateUserDto.username;
+      }
+
+      return this.users.save(user);
+    }
+
+    return null;
+  }
+
+  async deleteUser(id: number) {
+    const user = await this.findOne(id);
+
+    if (user) {
+      return this.users.remove(user);
+    }
+
+    return null;
+  }
+
+  async findAll(): Promise<User[]> {
+    const users = await this.users.find();
+
+    return users;
   }
 
   async findOne(id: number) {
