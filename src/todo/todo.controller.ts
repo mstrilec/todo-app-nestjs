@@ -37,6 +37,11 @@ export class TodoController {
     }
 
     const todo = await this.todoService.create(createTodoDto, currentUser);
+
+    if (todo.reminder) {
+      this.todoService.scheduleDeadlineReminders();
+    }
+
     return todo;
   }
 

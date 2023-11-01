@@ -1,4 +1,10 @@
-import { IsString, IsDefined, IsBoolean, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsDefined,
+  IsBoolean,
+  IsOptional,
+  IsDate,
+} from 'class-validator';
 
 export class CreateTodoDto {
   @IsString()
@@ -8,6 +14,14 @@ export class CreateTodoDto {
   @IsBoolean()
   @IsOptional()
   isCompleted: boolean = false;
+
+  @IsDate()
+  @IsDefined()
+  deadline: Date;
+
+  @IsBoolean()
+  @IsOptional()
+  reminder: boolean = false;
 
   userId: number;
 }
