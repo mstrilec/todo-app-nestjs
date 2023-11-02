@@ -26,7 +26,7 @@ export class UsersService {
 
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
-    const user = this.users.create({
+    const user = this.usersService.create({
       ...createUserDto,
       password: hashedPassword,
       emailConfirmationToken: confirmationToken,
@@ -81,7 +81,7 @@ export class UsersService {
   }
 
   async findOne(id: number) {
-    const user = await this.users.findOne({
+    const user = await this.usersService.findOne({
       where: {
         id: id,
       },
@@ -95,9 +95,9 @@ export class UsersService {
   }
 
   async findUserByEmail(email: string) {
-    console.log(this.users);
+    console.log(this.usersService);
 
-    const user = await this.users.findOne({
+    const user = await this.usersService.findOne({
       where: {
         email: email,
       },
@@ -113,7 +113,7 @@ export class UsersService {
   }
 
   async findUserByUsername(username: string) {
-    const user = await this.users.findOne({
+    const user = await this.usersService.findOne({
       where: {
         username: username,
       },

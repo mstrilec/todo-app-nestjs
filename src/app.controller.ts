@@ -17,7 +17,7 @@ import { CreateUserDto } from './users/dto/create-user.dto';
 export class AppController {
   constructor(
     private readonly authService: AuthService,
-    private users: UsersService,
+    private usersService: UsersService,
   ) {}
 
   @UseGuards(AuthGuard('local'))
