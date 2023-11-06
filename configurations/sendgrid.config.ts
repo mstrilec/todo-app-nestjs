@@ -1,5 +1,5 @@
 export default {
   apiKey:
-    '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',
+    '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',
   fromEmail: 'm.strilets.work@gmail.com',
 };

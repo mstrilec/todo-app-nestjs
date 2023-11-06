@@ -13,7 +13,7 @@ import { ConfigService } from '@nestjs/config';
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private users: Repository<User>,
+    private usersRepository: Repository<User>,
     private sendGridService: SendGridService,
     private configService: ConfigService,
   ) {}
@@ -32,7 +32,7 @@ export class UsersService {
       emailConfirmationToken: confirmationToken,
     });
 
-    await this.users.save(user);
+    await this.usersRepository.save(user);
 
     await this.sendGridService.sendEmail(
       createUserDto.email,
@@ -53,7 +53,7 @@ export class UsersService {
   }
 
   async confirmEmail(token: string) {
-    const user = await this.users.findOne({
+    const user = await this.usersRepository.findOne({
       where: { emailConfirmationToken: token },
     });
 
@@ -62,7 +62,7 @@ export class UsersService {
 
       user.emailConfirmationToken = null;
 
-      await this.users.save(user);
+      await this.usersRepository.save(user);
 
       return 'Email confirmation successful.';
     } else {
@@ -71,7 +71,7 @@ export class UsersService {
   }
 
   async findByEmailConfirmationToken(token: string): Promise<User | undefined> {
-    return this.users.findOne({
+    return this.usersRepository.findOne({
       where: { emailConfirmationToken: token },
     });
   }

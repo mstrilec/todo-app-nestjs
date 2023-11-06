@@ -18,8 +18,6 @@ async function bootstrap() {
     }),
   );
 
-  sgMail.setApiKey(sendgridConfig.apiKey);
-
   await app.listen(3000);
 }
 bootstrap();

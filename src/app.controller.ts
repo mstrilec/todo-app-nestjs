@@ -33,8 +33,7 @@ export class AppController {
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
     try {
-      const user = await this.users.create(createUserDto);
-
+      const user = await this.usersService.create(createUserDto);
       return {
         message:
           'Registration successful, please check your email for a confirmation link.',
