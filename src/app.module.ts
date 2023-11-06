@@ -9,6 +9,8 @@ import { TodoModule } from './todo/todo.module';
 import { dataSourceOptions } from 'db/data-source';
 import { AuthModule } from './auth/auth.module';
 import { ConfirmationController } from './confirmation/confirmation.controller';
+import { SendGridService } from './sendgrid/sendgrid.service';
+import { SendGridModule } from './sendgrid/sendgrid.module';
 
 @Module({
   imports: [
@@ -19,8 +21,9 @@ import { ConfirmationController } from './confirmation/confirmation.controller';
     TodoModule,
     UsersModule,
     AuthModule,
+    SendGridModule,
   ],
   controllers: [AppController, ConfirmationController],
-  providers: [AppService],
+  providers: [AppService, SendGridService],
 })
 export class AppModule {}

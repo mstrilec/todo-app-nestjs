@@ -35,7 +35,11 @@ export class AppController {
     try {
       const user = await this.users.create(createUserDto);
 
-      return user;
+      return {
+        message:
+          'Registration successful, please check your email for a confirmation link.',
+        user,
+      };
     } catch (error) {
       return { error: 'Registration failed', msg: error };
     }

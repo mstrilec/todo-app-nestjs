@@ -18,8 +18,8 @@ export class User {
   @Column({ default: false })
   isEmailConfirmed: boolean;
 
-  @Column({ unique: true })
-  emailConfirmationToken: string;
+  @Column({ unique: true, nullable: true })
+  emailConfirmationToken: string | null;
 
   @OneToMany(() => Todo, (todo) => todo.user)
   todos: Todo[] | [];

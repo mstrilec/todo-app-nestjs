@@ -8,54 +8,38 @@ import * as bcrypt from 'bcryptjs';
 import * as sgMail from '@sendgrid/mail';
 import * as crypto from 'crypto';
 import sendgridConfig from 'configurations/sendgrid.config';
+import { SendGridService } from 'src/sendgrid/sendgrid.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private users: Repository<User>,
+    private sendGridService: SendGridService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
+    const confirmationToken = await this.generateUniqueToken();
+    const confirmationLink = `${process.env.baseUrl}/confirmation?token=${confirmationToken}`;
+
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
     const user = this.users.create({
       ...createUserDto,
       password: hashedPassword,
+      emailConfirmationToken: confirmationToken,
     });
-
-    const confirmationToken = await this.generateUniqueToken();
-
-    const confirmationLink = `http://localhost:3000/confirmation?token=${confirmationToken}`;
-
-    user.emailConfirmationToken = confirmationToken;
 
     await this.users.save(user);
 
-    await this.sendConfirmationEmail(user.email, confirmationLink);
+    await this.sendGridService.sendEmail(
+      createUserDto.email,
+      'Confirm Your Email',
+      'Please confirm your email by clicking the link below:',
+      `<a href="${confirmationLink}">Confirm Your Email</a>`,
+    );
 
     return user;
-  }
-
-  async sendConfirmationEmail(to: string, confirmationLink: string) {
-    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-
-    const msg = {
-      to,
-      from: sendgridConfig.fromEmail,
-      subject: 'Confirm Your Email',
-      text: 'Please confirm your email by clicking the link below:',
-      html: `<a href="${confirmationLink}">Confirm Your Email</a>`,
-    };
-
-    sgMail
-      .send(msg)
-      .then(() => {
-        console.log('Email sent');
-      })
-      .catch((error) => {
-        console.error(error);
-      });
   }
 
   async generateUniqueToken() {
@@ -74,12 +58,20 @@ export class UsersService {
     if (user) {
       user.isEmailConfirmed = true;
 
+      user.emailConfirmationToken = null;
+
       await this.users.save(user);
 
-      return user;
+      return 'Email confirmation successful.';
     } else {
-      return null;
+      return 'Invalid confirmation token.';
     }
+  }
+
+  async findByEmailConfirmationToken(token: string): Promise<User | undefined> {
+    return this.users.findOne({
+      where: { emailConfirmationToken: token },
+    });
   }
 
   findAll() {

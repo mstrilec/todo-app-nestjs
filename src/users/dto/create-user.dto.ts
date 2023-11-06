@@ -23,9 +23,9 @@ export class CreateUserDto {
 
   @IsOptional()
   @IsBoolean()
-  isEmailConfirmed: boolean = false;
+  isEmailConfirmed: boolean;
 
   @IsOptional()
   @IsString()
-  emailConfirmationToken: string;
+  emailConfirmationToken?: string;
 }

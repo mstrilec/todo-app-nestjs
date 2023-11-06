@@ -10,9 +10,9 @@ export class ConfirmationController {
     const user = await this.usersService.confirmEmail(token);
 
     if (user) {
-      return 'Email confirmed successfully';
-    } else {
-      return 'Email not confirmed';
+      return 'Email Confirmation Successful. You can now log in to your account.';
     }
+
+    return 'Invalid confirmation token';
   }
 }
