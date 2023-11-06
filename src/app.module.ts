@@ -16,6 +16,7 @@ import { SendGridModule } from './sendgrid/sendgrid.module';
   imports: [
     ConfigModule.forRoot({
       validationSchema,
+      isGlobal: true,
     }),
     TypeOrmModule.forRoot(dataSourceOptions),
     TodoModule,

@@ -5,10 +5,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
-import * as sgMail from '@sendgrid/mail';
 import * as crypto from 'crypto';
-import sendgridConfig from 'configurations/sendgrid.config';
 import { SendGridService } from 'src/sendgrid/sendgrid.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
@@ -16,11 +15,14 @@ export class UsersService {
     @InjectRepository(User)
     private users: Repository<User>,
     private sendGridService: SendGridService,
+    private configService: ConfigService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
     const confirmationToken = await this.generateUniqueToken();
-    const confirmationLink = `${process.env.baseUrl}/confirmation?token=${confirmationToken}`;
+    const confirmationLink = `${this.configService.get(
+      'BASE_URL',
+    )}/confirmation?token=${confirmationToken}`;
 
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
