@@ -12,6 +12,9 @@ export class Todo {
   @Column({ default: false })
   isCompleted: boolean;
 
+  @Column()
+  userId: number;
+
   @Column({ type: 'timestamp', nullable: false })
   deadline: Date;
 
