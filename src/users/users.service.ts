@@ -5,23 +5,75 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
+import * as crypto from 'crypto';
+import { SendGridService } from 'src/sendgrid/sendgrid.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
-    private users: Repository<User>,
+    private usersRepository: Repository<User>,
+    private sendGridService: SendGridService,
+    private configService: ConfigService,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
+    const confirmationToken = await this.generateUniqueToken();
+    const confirmationLink = `${this.configService.get(
+      'BASE_URL',
+    )}/confirmation?token=${confirmationToken}`;
+
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
-    const user = this.users.create({
+    const user = this.usersRepository.create({
       ...createUserDto,
       password: hashedPassword,
+      emailConfirmationToken: confirmationToken,
     });
 
-    return this.users.save(user);
+    await this.usersRepository.save(user);
+
+    await this.sendGridService.sendEmail(
+      createUserDto.email,
+      'Confirm Your Email',
+      'Please confirm your email by clicking the link below:',
+      `<a href="${confirmationLink}">Confirm Your Email</a>`,
+    );
+
+    return user;
+  }
+
+  async generateUniqueToken() {
+    const buffer = crypto.randomBytes(32);
+
+    const token = buffer.toString('hex');
+
+    return token;
+  }
+
+  async confirmEmail(token: string) {
+    const user = await this.usersRepository.findOne({
+      where: { emailConfirmationToken: token },
+    });
+
+    if (user) {
+      user.isEmailConfirmed = true;
+
+      user.emailConfirmationToken = null;
+
+      await this.usersRepository.save(user);
+
+      return 'Email confirmation successful.';
+    } else {
+      return 'Invalid confirmation token.';
+    }
+  }
+
+  async findByEmailConfirmationToken(token: string): Promise<User | undefined> {
+    return this.usersRepository.findOne({
+      where: { emailConfirmationToken: token },
+    });
   }
 
   findAll() {
@@ -29,7 +81,7 @@ export class UsersService {
   }
 
   async findOne(id: number) {
-    const user = await this.users.findOne({
+    const user = await this.usersRepository.findOne({
       where: {
         id: id,
       },
@@ -43,9 +95,9 @@ export class UsersService {
   }
 
   async findUserByEmail(email: string) {
-    console.log(this.users);
+    console.log(this.usersRepository);
 
-    const user = await this.users.findOne({
+    const user = await this.usersRepository.findOne({
       where: {
         email: email,
       },
@@ -61,7 +113,7 @@ export class UsersService {
   }
 
   async findUserByUsername(username: string) {
-    const user = await this.users.findOne({
+    const user = await this.usersRepository.findOne({
       where: {
         username: username,
       },

@@ -17,7 +17,7 @@ import { CreateUserDto } from './users/dto/create-user.dto';
 export class AppController {
   constructor(
     private readonly authService: AuthService,
-    private users: UsersService,
+    private usersService: UsersService,
   ) {}
 
   @UseGuards(AuthGuard('local'))
@@ -33,10 +33,14 @@ export class AppController {
   @Post('register')
   async register(@Body() createUserDto: CreateUserDto) {
     try {
-      const user = await this.users.create(createUserDto);
-      return user;
+      const user = await this.usersService.create(createUserDto);
+      return {
+        message:
+          'Registration successful, please check your email for a confirmation link.',
+        user,
+      };
     } catch (error) {
-      return { error: 'Registration failed' };
+      return { error: 'Registration failed', msg: error };
     }
   }
 }
